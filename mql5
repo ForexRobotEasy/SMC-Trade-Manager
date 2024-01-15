@@ -1,0 +1,46 @@
+mql5
+//+------------------------------------------------------------------+
+//|                                                    SMC Trade Manager |
+//|                                   https://forexroboteasy.com |
+//|                                        Developed by Forex Robot Easy Team |
+//|                                                                        |
+//|                                                    TERMS OF REFERENCE |
+//|------------------------------------------------------------------+
+
+// Define necessary variables
+input double riskPercentage = 2.0; // Risk percentage per trade
+input double stopLossPercentage = 1.0; // Stop loss percentage per trade
+input double takeProfitPercentage = 2.0; // Take profit percentage per trade
+input double scalingOutPercentage = 50.0; // Scaling out percentage per trade
+input ENUM_ORDER_TYPE orderType = ORDER_TYPE_BUY; // Order type (buy or sell)
+
+// Calculate risk amount based on account balance
+double accountBalance = AccountInfoDouble(ACCOUNT_BALANCE);
+double riskAmount = accountBalance * riskPercentage / 100;
+
+// Calculate stop loss and take profit levels
+double stopLoss = NormalizeDouble(SymbolInfoDouble(_Symbol, SYMBOL_ASK) - (SymbolInfoDouble(_Symbol, SYMBOL_ASK) * stopLossPercentage / 100), Digits);
+double takeProfit = NormalizeDouble(SymbolInfoDouble(_Symbol, SYMBOL_ASK) + (SymbolInfoDouble(_Symbol, SYMBOL_ASK) * takeProfitPercentage / 100), Digits);
+
+// Calculate scaling out level
+double scalingOutLevel = SymbolInfoDouble(_Symbol, SYMBOL_ASK) + (SymbolInfoDouble(_Symbol, SYMBOL_ASK) * scalingOutPercentage / 100);
+
+// Calculate lot size based on risk amount and stop loss
+double lotSize = riskAmount / (SymbolInfoDouble(_Symbol, SYMBOL_ASK) - stopLoss);
+
+// Place trade based on trading parameters
+int ticket = OrderSend(_Symbol, orderType, lotSize, SymbolInfoDouble(_Symbol, SYMBOL_ASK), 0, stopLoss, takeProfit, 'SMC Trade Manager', MagicNumber, 0, clrNONE);
+
+// Check if trade is executed successfully
+if (ticket > 0)
+{
+    Print('Trade executed successfully! Ticket: ', ticket);
+}
+else
+{
+    Print('Trade execution failed! Error code: ', GetLastError());
+}
+
+//+------------------------------------------------------------------+
+//|                                                END OF SMC Trade Manager |
+//+------------------------------------------------------------------+
